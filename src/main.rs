@@ -33,7 +33,7 @@ pub fn main() {
     main_loop(&sdl_context, &mut model, &mut visitor);
 }
 
-fn main_loop(context: &Sdl, mut model: &mut UIModel, mut visitor: &mut Painter) {
+fn main_loop(context: &Sdl, model: &UIModel, mut visitor: &mut Painter) {
     let mut event_pump = context.event_pump().unwrap();
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -44,11 +44,8 @@ fn main_loop(context: &Sdl, mut model: &mut UIModel, mut visitor: &mut Painter) 
                 _ => {}
             }
         }
-        draw(&mut model, &mut visitor);
-    }
-}
 
-fn draw(model: &UIModel, mut visitor: &mut Painter) {
-    walker::walk_model(model, &mut visitor);
-    visitor.done();
+        walker::walk_model(model, &mut visitor);
+        visitor.done();
+    }
 }
