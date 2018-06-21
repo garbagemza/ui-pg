@@ -32,4 +32,8 @@ impl<'a> Painter<'a> {
             canvas
         }
     }
+
+    pub fn done(&mut self) {
+        self.canvas.present();
+    }
 }

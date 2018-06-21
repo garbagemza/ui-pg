@@ -4,8 +4,6 @@ mod ui;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::render::Canvas;
-use sdl2::video::Window;
 use sdl2::Sdl;
 
 use ui::ast::UIModel;
@@ -32,10 +30,11 @@ pub fn main() {
     canvas.clear();
     
     let mut model = ui::create();
-    main_loop(&sdl_context, &mut canvas, &mut model);
+    let mut visitor = Painter::new(&mut canvas);
+    main_loop(&sdl_context, &mut model, &mut visitor);
 }
 
-fn main_loop(context: &Sdl, mut canvas: &mut Canvas<Window>, mut model: &mut UIModel) {
+fn main_loop(context: &Sdl, mut model: &mut UIModel, mut visitor: &mut Painter) {
     let mut event_pump = context.event_pump().unwrap();
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -46,14 +45,13 @@ fn main_loop(context: &Sdl, mut canvas: &mut Canvas<Window>, mut model: &mut UIM
                 _ => {}
             }
         }
-        draw(&mut canvas, &mut model);
-        canvas.present();
+        draw(&mut model, &mut visitor);
     }
 }
 
-fn draw<'a>(mut canvas: &mut Canvas<Window>, model: &mut UIModel) {
-    let mut visitor = Painter::new(&mut canvas);
+fn draw<'a>(model: &mut UIModel, mut visitor: &mut Painter) {
     walk_model(model, &mut visitor);
+    visitor.done();
 }
 
 fn walk_model(model: &UIModel, visitor: &mut Painter) {
