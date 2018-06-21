@@ -1,6 +1,7 @@
 
 pub mod ast;
 pub mod visit;
+pub mod walker;
 
 use ui::ast::UIComponent;
 use ui::ast::UIModel;

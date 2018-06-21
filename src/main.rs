@@ -7,9 +7,8 @@ use sdl2::keyboard::Keycode;
 use sdl2::Sdl;
 
 use ui::ast::UIModel;
-
-use ui::visit::Visitor;
 use ui::visit::Painter;
+use ui::walker;
 
 pub fn main() {
     let sdl_context = sdl2::init().unwrap();
@@ -50,18 +49,6 @@ fn main_loop(context: &Sdl, mut model: &mut UIModel, mut visitor: &mut Painter) 
 }
 
 fn draw<'a>(model: &mut UIModel, mut visitor: &mut Painter) {
-    walk_model(model, &mut visitor);
+    walker::walk_model(model, &mut visitor);
     visitor.done();
-}
-
-fn walk_model(model: &UIModel, visitor: &mut Painter) {
-    match model {
-        UIModel::Component(ref comp) => visitor.visit_component(comp),
-        UIModel::Composite(ref components) => {
-            for component in components {
-                visitor.visit_composite(component);
-                walk_model(component, visitor);
-            }
-        }
-    }
 }
