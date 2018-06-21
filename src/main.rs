@@ -7,6 +7,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::Sdl;
+
 use ui::ast::UIModel;
 
 use ui::visit::Visitor;
@@ -29,7 +30,7 @@ pub fn main() {
 
     canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();
-
+    
     let mut model = ui::create();
     main_loop(&sdl_context, &mut canvas, &mut model);
 }
@@ -46,21 +47,23 @@ fn main_loop(context: &Sdl, mut canvas: &mut Canvas<Window>, mut model: &mut UIM
             }
         }
         draw(&mut canvas, &mut model);
+        canvas.present();
     }
 }
 
-fn draw(canvas: &mut Canvas<Window>, model: &mut UIModel) {
-    let mut visitor = Painter::new();
+fn draw<'a>(mut canvas: &mut Canvas<Window>, model: &mut UIModel) {
+    let mut visitor = Painter::new(&mut canvas);
     walk_model(model, &mut visitor);
-    canvas.present();
 }
 
 fn walk_model(model: &UIModel, visitor: &mut Painter) {
     match model {
         UIModel::Component(ref comp) => visitor.visit_component(comp),
-        UIModel::Composite(ref model) => {
-            visitor.visit_composite(model);
-            walk_model(model, visitor);
+        UIModel::Composite(ref components) => {
+            for component in components {
+                visitor.visit_composite(component);
+                walk_model(component, visitor);
+            }
         }
     }
 }
