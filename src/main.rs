@@ -1,30 +1,41 @@
 extern crate sdl2;
+mod ui;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::video::SwapInterval;
-use std::time::Duration;
+use sdl2::render::Canvas;
+use sdl2::video::Window;
+use sdl2::Sdl;
+use ui::ast::UIModel;
+
+use ui::visit::Visitor;
+use ui::visit::Painter;
 
 pub fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
-    let window = video_subsystem.window("rust-sdl2 demo: Video", 800, 600)
+    let window = video_subsystem.window("ui-pg", 800, 600)
         .position_centered()
         .opengl()
         .build()
         .unwrap();
 
-    video_subsystem.gl_set_swap_interval(SwapInterval::VSync);
+    let mut canvas = window.into_canvas()
+        .accelerated()
+        .present_vsync()
+        .build().unwrap();
 
-    let mut canvas = window.into_canvas().build().unwrap();
-
-    canvas.set_draw_color(Color::RGB(255, 100, 38));
+    canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();
-    canvas.present();
-    let mut event_pump = sdl_context.event_pump().unwrap();
 
+    let mut model = ui::create();
+    main_loop(&sdl_context, &mut canvas, &mut model);
+}
+
+fn main_loop(context: &Sdl, mut canvas: &mut Canvas<Window>, mut model: &mut UIModel) {
+    let mut event_pump = context.event_pump().unwrap();
     'running: loop {
         for event in event_pump.poll_iter() {
             match event {
@@ -34,7 +45,22 @@ pub fn main() {
                 _ => {}
             }
         }
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
-        // The rest of the game loop goes here...
+        draw(&mut canvas, &mut model);
+    }
+}
+
+fn draw(canvas: &mut Canvas<Window>, model: &mut UIModel) {
+    let mut visitor = Painter::new();
+    walk_model(model, &mut visitor);
+    canvas.present();
+}
+
+fn walk_model(model: &UIModel, visitor: &mut Painter) {
+    match model {
+        UIModel::Component(ref comp) => visitor.visit_component(comp),
+        UIModel::Composite(ref model) => {
+            visitor.visit_composite(model);
+            walk_model(model, visitor);
+        }
     }
 }
