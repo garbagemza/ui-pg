@@ -48,7 +48,7 @@ fn main_loop(context: &Sdl, mut model: &mut UIModel, mut visitor: &mut Painter) 
     }
 }
 
-fn draw<'a>(model: &mut UIModel, mut visitor: &mut Painter) {
+fn draw(model: &UIModel, mut visitor: &mut Painter) {
     walker::walk_model(model, &mut visitor);
     visitor.done();
 }

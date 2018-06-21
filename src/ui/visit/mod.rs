@@ -1,5 +1,3 @@
-// The abstract visitor
-
 use ui::ast::*;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
