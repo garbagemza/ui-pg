@@ -19,7 +19,6 @@ impl<'a> Visitor for Painter<'a> {
         match component {
             UIComponent::Rectangle(ref rect) => {
                 self.canvas.set_draw_color(Color::RGB(255, 210, 0));
-                // A draw a rectangle which almost fills our window with it !
                 self.canvas.fill_rect(*rect).expect("Unable to fill Rectangle!");
             }
         };
@@ -30,7 +29,7 @@ impl<'a> Visitor for Painter<'a> {
 impl<'a> Painter<'a> {
     pub fn new(canvas: &mut Canvas<Window>) -> Painter {
         Painter {
-            canvas: canvas
+            canvas
         }
     }
 }
