@@ -1,7 +1,6 @@
 use ui::ast::*;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
-use sdl2::pixels::Color;
 
 pub trait Visitor {
     fn visit_component(&mut self, component: &UIComponent);
@@ -15,9 +14,13 @@ pub struct Painter<'a> {
 impl<'a> Visitor for Painter<'a> {
     fn visit_component(&mut self, component: &UIComponent) { 
         match component {
-            UIComponent::Rectangle(ref rect) => {
-                self.canvas.set_draw_color(Color::RGB(255, 210, 0));
+            UIComponent::Rectangle(ref rect, ref color) => {
+                self.canvas.set_draw_color(*color);
                 self.canvas.fill_rect(*rect).expect("Unable to fill Rectangle!");
+            }
+            UIComponent::Background(ref color) => {
+                self.canvas.set_draw_color(*color);
+                self.canvas.clear();
             }
         };
     }

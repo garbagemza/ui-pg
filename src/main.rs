@@ -1,7 +1,10 @@
 extern crate sdl2;
 mod ui;
 
-use sdl2::pixels::Color;
+use std::time::Instant;
+use std::thread;
+use std::time::Duration;
+
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::Sdl;
@@ -16,6 +19,7 @@ pub fn main() {
 
     let window = video_subsystem.window("ui-pg", 800, 600)
         .position_centered()
+        .resizable()
         .opengl()
         .build()
         .unwrap();
@@ -24,9 +28,6 @@ pub fn main() {
         .accelerated()
         .present_vsync()
         .build().unwrap();
-
-    canvas.set_draw_color(Color::RGB(0, 0, 0));
-    canvas.clear();
     
     let mut model = ui::create();
     let mut visitor = Painter::new(&mut canvas);
@@ -36,6 +37,8 @@ pub fn main() {
 fn main_loop(context: &Sdl, model: &UIModel, mut visitor: &mut Painter) {
     let mut event_pump = context.event_pump().unwrap();
     'running: loop {
+        let start = Instant::now();
+
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit {..} | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
@@ -47,5 +50,16 @@ fn main_loop(context: &Sdl, model: &UIModel, mut visitor: &mut Painter) {
 
         walker::walk_model(model, &mut visitor);
         visitor.done();
+        sleep_exceeded_time(start);
     }
 }
+
+
+fn sleep_exceeded_time(start_time: Instant) {
+    let elapsed = start_time.elapsed();
+    let diff_nanos = (1000_000_000.0 / 60.0) - (elapsed.subsec_nanos() as f64);
+    if diff_nanos > 0.0 {
+        thread::sleep(Duration::from_millis((diff_nanos / 1000_000.0) as u64));
+    }
+}
+

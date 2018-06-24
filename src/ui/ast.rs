@@ -1,6 +1,7 @@
 
 // The data we will visit
 use sdl2::rect::Rect;
+use sdl2::pixels::Color;
 
 pub enum UIModel {
     Component(UIComponent),
@@ -8,5 +9,6 @@ pub enum UIModel {
 }
 
 pub enum UIComponent {
-    Rectangle(Rect)
+    Background(Color),
+    Rectangle(Rect, Color)
 }
