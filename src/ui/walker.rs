@@ -1,7 +1,7 @@
 use ui::ast::*;
 use ui::visit::*;
 
-pub fn walk_model(model: &UIModel, visitor: &mut Painter) {
+pub fn walk_model<T: Visitor>(model: &UIModel, visitor: &mut T) {
     match model {
         UIModel::Component(ref comp) => visitor.visit_component(comp),
         UIModel::Composite(ref components) => {

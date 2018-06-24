@@ -24,13 +24,13 @@ pub fn main() {
         .build()
         .unwrap();
 
-    let mut canvas = window.into_canvas()
+    let canvas = window.into_canvas()
         .accelerated()
         .present_vsync()
         .build().unwrap();
     
     let mut model = ui::create();
-    let mut visitor = Painter::new(&mut canvas);
+    let mut visitor = Painter::new(canvas);
     main_loop(&sdl_context, &mut model, &mut visitor);
 }
 

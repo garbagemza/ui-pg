@@ -7,11 +7,11 @@ pub trait Visitor {
     fn visit_composite(&mut self, model: &UIModel);
 }
 
-pub struct Painter<'a> {
-    canvas: &'a mut Canvas<Window>
+pub struct Painter {
+    canvas: Canvas<Window>
 }
 
-impl<'a> Visitor for Painter<'a> {
+impl Visitor for Painter {
     fn visit_component(&mut self, component: &UIComponent) { 
         match component {
             UIComponent::Rectangle(ref rect, ref color) => {
@@ -27,8 +27,13 @@ impl<'a> Visitor for Painter<'a> {
     fn visit_composite(&mut self, _: &UIModel) { }
 }
 
-impl<'a> Painter<'a> {
-    pub fn new(canvas: &mut Canvas<Window>) -> Painter {
+impl<'a, T> Visitor for &'a mut T where T: Visitor {
+    fn visit_component(&mut self, component: &UIComponent) { (*self).visit_component(component) }
+    fn visit_composite(&mut self, model: &UIModel) { (*self).visit_composite(model) }
+}
+
+impl Painter {
+    pub fn new(canvas: Canvas<Window>) -> Painter {
         Painter {
             canvas
         }
